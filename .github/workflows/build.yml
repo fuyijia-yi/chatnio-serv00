@@ -27,11 +27,12 @@ jobs:
       - name: Install pnpm globally # 全局安装 pnpm
         run: npm install -g pnpm
 
-      - name: Clone # 克隆存储库
-        run: |
-		git clone https://github.com/Deeptrain-Community/chatnio.git
-		cd chatnio
-
+      - name: clone # 全局安装 pnpm
+        run: git clone https://github.com/Deeptrain-Community/chatnio.git
+	
+      - name: cd # 全局安装 pnpm
+        run: cd chatnio
+	
       - name: Navigate to app directory and install dependencies # 进入 app 目录并安装依赖
         working-directory: ./app
         run: pnpm install
