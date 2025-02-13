@@ -1,0 +1,41 @@
+name: Build ChatNIO
+
+on:
+  push:
+    branches: [ main ]
+
+env:
+  WORKING_DIRECTORY: ${{ github.workspace }}/chatnio
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+        
+    - name: Install pnpm globally
+      run: npm install -g pnpm
+      
+    - name: Install dependencies
+      run: pnpm install
+      
+    - name: Build frontend
+      run: pnpm build
+      
+    - name: Build Go binary
+      run: |
+        cd ..
+        go build -o chatnio .
+        
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: chatnio
+        path: ${{ github.workspace }}/chatnio/chatnio
