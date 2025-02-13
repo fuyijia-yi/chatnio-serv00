@@ -1,41 +1,47 @@
-name: Build ChatNIO
+name: Build ChatNio
 
 on:
   push:
-    branches: [ main ]
-
-env:
-  WORKING_DIRECTORY: ${{ github.workspace }}/chatnio
+    branches:
+      - main  # 触发工作流的分支，可以根据需要修改
+  pull_request:
+    branches:
+      - main  # 触发工作流的分支，可以根据需要修改
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # 使用最新的 Ubuntu 镜像
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'  # 升级到 Node.js 18
-        
-    - name: Install pnpm globally
-      run: npm install -g pnpm
-      
-    - name: Install dependencies
-      run: pnpm install
-      
-    - name: Build frontend
-      run: pnpm build
-      
-    - name: Build Go binary
-      run: |
-        cd ..
-        go build -o chatnio .
-        
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: chatnio
-        path: ${{ github.workspace }}/chatnio/chatnio
+      - name: Checkout code
+        uses: actions/checkout@v4  # 检出代码，使用 v4 版本
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '16'  # 设置 Node.js 版本，根据项目需要修改
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.20' # 设置 Go 版本, 根据项目需要修改
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Build frontend
+        run: |
+          cd app
+          pnpm install
+          pnpm build
+
+      - name: Build backend
+        run: |
+          cd ..
+          go build -o chatnio
+
+      - name: Upload artifact (optional)
+        uses: actions/upload-artifact@v4  # 使用 v4 版本
+        with:
+          name: chatnio-binary
+          path: chatnio  # 上传编译好的二进制文件 (可选)
