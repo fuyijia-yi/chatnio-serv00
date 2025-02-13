@@ -1,52 +1,56 @@
-name: Build ChatNio
+name: Build Chatnio
 
 on:
   push:
-    branches:
-      - main  # 触发工作流的分支，可以根据需要修改
+    branches: [ main ] # 当 push 到 main 分支时触发
   pull_request:
-    branches:
-      - main  # 触发工作流的分支，可以根据需要修改
+    branches: [ main ] # 当 pull request 到 main 分支时触发
 
 jobs:
   build:
-    runs-on: ubuntu-latest  # 使用最新的 Ubuntu 镜像
+    runs-on: ubuntu-latest # 使用 Ubuntu 最新版本作为构建环境
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4  # 检出代码，使用 v4 版本
+      - name: Checkout code # 检出代码
+        uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Setup Node.js # 设置 Node.js 环境
         uses: actions/setup-node@v4
         with:
-          node-version: '18'  # 设置 Node.js 版本，根据项目需要修改
+          node-version: '18' # 或者你需要的 Node.js 版本
 
-      - name: Set up Go
+      - name: Setup Go # 设置 Go 环境
         uses: actions/setup-go@v4
         with:
-          go-version: '1.22' # 设置 Go 版本, 根据项目需要修改
+          go-version: '1.20' # 或者你需要的 Go 版本
 
-      - name: Clone and cd
-        run: |
-          git clone https://github.com/Deeptrain-Community/chatnio.git
-          cd chatnio
-          cd app
-        
-      - name: Install pnpm
+      - name: Install pnpm globally # 全局安装 pnpm
         run: npm install -g pnpm
 
-      - name: Build frontend
+      - name: Clone # 克隆存储库
         run: |
-          pnpm install
-          pnpm build
+		git clone https://github.com/Deeptrain-Community/chatnio.git
+		cd chatnio
 
-      - name: Build backend
-        run: |
-          cd ..
-          go build -o chatnio
+      - name: Navigate to app directory and install dependencies # 进入 app 目录并安装依赖
+        working-directory: ./app
+        run: pnpm install
 
-      - name: Upload artifact (optional)
-        uses: actions/upload-artifact@v4  # 使用 v4 版本
+      - name: Build Node.js app # 构建 Node.js 应用
+        working-directory: ./app
+        run: pnpm build
+
+      - name: Navigate back to root directory # 返回根目录 (实际上 actions/checkout 后默认就在根目录，但为了更清晰，可以显式返回)
+        run: cd ..
+
+      - name: Build Go application # 构建 Go 应用
+        run: go build -o chatnio
+
+      - name: Upload Artifact # 上传构建产物 (可选)
+        uses: actions/upload-artifact@v4
         with:
-          name: chatnio-binary
-          path: chatnio  # 上传编译好的二进制文件 (可选)
+          name: chatnio-executable # artifact 的名称
+          path: chatnio # 需要上传的文件路径，这里是构建出的 chatnio 可执行文件
+
+      - name: Output Build Log # 输出构建日志 (可选，方便查看)
+        run: cat output.log || true # 尝试输出 output.log 的内容，如果文件不存在也不报错
